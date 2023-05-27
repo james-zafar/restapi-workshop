@@ -1,0 +1,299 @@
+swagger: '2.0'
+info:
+  title: Airbus workshop example API
+  version: '1.0'
+basePath: /v1
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  '/models':
+    post:
+      summary: Create a new model
+      description: |
+        Builds a cluster model from a given dataset
+      parameters:
+        - name: config
+          in: body
+          description: |
+            Configuration of the model
+          schema:
+            $ref: '#/definitions/ModelConfig'
+          required: true
+      responses:
+        '201':
+          description: |
+            A new model was created from the given settings
+          headers:
+            'Location':
+              description: |
+                The URL of the new model
+              type: string
+              format: url
+          schema:
+            $ref: '#/definitions/Model'
+          examples:
+            application/json:
+              id: '598f0de1-77dc-4780-8bcb-1226225bbb62'
+              status: pending
+        '400':
+          $ref: '#/responses/BadRequest'
+
+  '/models/{model_id}':
+    parameters:
+      - name: model_id
+        in: path
+        description: Unique identifier for a model
+        type: string
+        format: uuid
+        required: true
+    get:
+      summary: Retrieve the current state of a model
+      description: |
+        Retrieves the state of a model specified by its `model_id`.
+        Use this to determine when the model has finished building and is either
+        ready for use, or has failed with an error.
+      responses:
+        '200':
+          description: |
+            The model was retrieved successfully.
+          schema:
+            $ref: '#/definitions/Model'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+    delete:
+      summary: Delete a model
+      description: |
+        Deletes a model specified by its `model_id`.
+      responses:
+        '204':
+          description: |
+            The model was deleted successfully
+        '400':
+          $ref: '#/responses/BadRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+
+  '/models/{model_id}/results':
+    parameters:
+      - name: model_id
+        in: path
+        description: |
+          Unique identifier for a model
+        type: string
+        format: uuid
+        required: true
+    get:
+      summary: Retrieve the results of a completed model
+      description: |
+        Retrieves the results of a completed model associated with a given model.
+      responses:
+        '200':
+          description: |
+            The experiment was retrieved successfully.
+          schema:
+            $ref: '#/definitions/Results'
+          examples:
+            application/json:
+              id: 'ca4d16b6-0e8d-4426-9812-01f1f8529822'
+              status: completed
+              results:
+                cluster_count: 3
+                total_data_points: 150
+                clusters:
+                  - label: '1.0'
+                    occurrences: 50
+                    items:
+                      - data_point_1
+                  - label: '11.0'
+                    occurrences: 100
+                    items:
+                      - data_point_2
+        '400':
+          $ref: '#/responses/BadRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+
+  '/healthz':
+    get:
+      summary: Check that the service is up
+      description: |
+        Checks if the service is running and ready to service requests.
+      operationId: healthz
+      tags:
+        - Health
+      responses:
+        '204':
+          description: |
+            The service is up
+
+definitions:
+  Model:
+    description: |
+      A model
+    type: object
+    properties:
+      id:
+        description: |
+          A unique identifier (UUID) for this model
+        type: string
+        format: uuid
+      status:
+        $ref: '#/definitions/Status'
+      errors:
+        description: |
+          A list of error messages, typically empty unless the status is `failed`.
+        type: array
+        items:
+          $ref: '#/definitions/ErrorItem'
+    required:
+      - id
+      - status
+  ModelConfig:
+    description: |
+      Configures a model training task
+    type: object
+    properties:
+      data_source:
+        description: |
+          The URL of the trace query service from which production traces are pulled.
+        type: string
+        format: url
+        additionalProperties: true
+      data_api_key:
+        description: |
+          The API key required to access the data in the 'data_source'.
+        type: string
+        format: url
+        additionalProperties: true
+    required:
+      - data_source
+      - data_api_key
+  Results:
+    description: |
+      The results from a completed model
+    type: object
+    properties:
+      id:
+        description: |
+          A unique identifier (UUID) for these results
+        type: string
+        format: uuid
+      clusters:
+        description: |
+          The results of a successful experiment, typically absent unless the status is `completed`.
+        type: object
+        properties:
+          cluster_count:
+            description: |
+              The number of unique clusters found
+            type: integer
+          total_data_points:
+            description: |
+              The total number of data points analysed when building the model
+            type: integer
+          clusters:
+            description: |
+              The complete list of clusters observed.
+            type: array
+            items:
+              $ref: '#/definitions/Cluster'
+        required:
+          - cluster_count
+          - total_data_points
+          - clusters
+    required:
+      - id
+      - clusters
+  Status:
+    description: |
+      Resource status, one of:
+      - pending: the resource has been created but not completed
+      - active: the resource is under construction
+      - completed: the resource was completed successfully
+      - failed: the resource could not be completed
+    type: string
+    enum:
+      - pending
+      - running
+      - completed
+      - failed
+  Cluster:
+    description: |
+      A cluster of similar data points
+    type: object
+    properties:
+      label:
+        description: |
+          The label of the cluster, unique within the model
+        type: string
+      occurrences:
+        description: |
+          The number of data points in this cluster
+        type: integer
+      members:
+        description: |
+          A list of data points that belong to this cluster
+        type: array
+        items:
+          type: string
+    required:
+      - label
+      - occurrences
+      - members
+  ErrorItem:
+    description: |
+      An error message.
+    type: object
+    properties:
+      code:
+        description: |
+          This field MUST contain a snake case string succinctly identifying the problem.
+          This field SHOULD NOT indicate which field, parameter, or header caused the error,
+          as this is better done with an error target model.
+        type: string
+      message:
+        description: |
+          This field MUST contain a plainly-written, developer-oriented explanation of the solution to the problem
+          in complete, well-formed sentences.
+        type: string
+    required:
+      - code
+      - message
+    additionalProperties: false
+  Error:
+    type: object
+    description: |
+      General error response body
+    properties:
+      errors:
+        description: |
+          This field MUST contain an array with at least one error model.
+        type: array
+        items:
+          $ref: '#/definitions/ErrorItem'
+        minItems: 1
+      status_code:
+        description: |
+          This field MAY contain the HTTP status code used for the response. Otherwise, it MUST be omitted.
+        type: integer
+    required:
+      - errors
+    additionalProperties: false
+
+responses:
+  BadRequest:
+    description: |
+      The request body or parameters were incorrect
+    schema:
+      $ref: '#/definitions/Error'
+  NotFound:
+    description: |
+      The specified model, experiment or cluster was not found
+    schema:
+      $ref: '#/definitions/Error'

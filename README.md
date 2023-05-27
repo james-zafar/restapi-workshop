@@ -1,1 +1,1 @@
-# restapi-workshop
+# fastapi-workshop
