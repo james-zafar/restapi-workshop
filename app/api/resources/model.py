@@ -3,4 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Model:
-    pass
+    @classmethod
+    def new_model(cls):
+        # FIXME: This should return a new Model
+        pass
