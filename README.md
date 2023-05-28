@@ -1,6 +1,6 @@
 # Rest API workshop
 
-This workshop should should take around 2 hours to complete.
+This workshop should should take around 1 hour to complete.
 
 ### Prerequisites
 
