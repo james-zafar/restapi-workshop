@@ -4,7 +4,7 @@ This workshop should should take around 1 hour to complete.
 
 ### Prerequisites
 
-Before starting this workshop make sure that you have Python 3.10 installed. Next install the
+Before starting this workshop make sure that you have Python >= 3.10 installed. Next install the
 packages you will be using by running `pip install -r requirements.txt`.
 
 Unit tests have been written to test all the endpoints you will implement throughout the workshop. Check that you are able
@@ -90,7 +90,7 @@ inform the client that the data source could not be reached.
 
 Below you will find some useful tips to help you with the workshop.
 
-##### Accessing the ModelStore
+#### Accessing the ModelStore
 
 The `ModelStore` is a global in-memory store for models and results. It is instantiated when the API starts up ([here](https://github.com/james-zafar/restapi-workshop/blob/main/app/main.py#L10)) 
 and can be accessed in any endpoint by adding an argument to any handler function which accepts a Request object which 
@@ -105,7 +105,7 @@ def get_example(request: Request) -> None:
     request.app.state.model_store['model_id'] = 'A model'  # Create a new model
 ```
 
-##### Custom responses
+#### Custom responses
 
 If you need to add additional information to a response, for example headers then you should use `fastapi.responses.JSONResponse`.
 An example of using JSONResponse to send headers as part of a response is provided below.
