@@ -34,12 +34,9 @@ restapi-workshop
 │       │   │   model.py <-- An incomplete definition of a Model
 │       │   │   results.py <-- An incomplete definition of a ResultItem
 │       │   │   status.py <-- An incomplete definition of a Status
-│       │
-│       └───store
-│       │   │   model_store.py <-- An in memory model store with some additional useful functionality
 │ 
 └───store
-│   │   error_response.py <-- Contains an ABC for an error model
+│   │   model_store.py <-- An in memory model store with some additional useful functionality
 │ 
 └───test
 │   │   test_*.py  <-- Unit tests for each endpoint that you will implement
