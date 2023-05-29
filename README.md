@@ -101,8 +101,8 @@ from fastapi import Request
 
 @router.get('/example')
 def get_example(request: Request) -> None:
-    my_model = request.app.state.model_store['model_id']  # Retrieve a model
-    request.app.state.model_store['model_id'] = 'A model'  # Create a new model
+    my_model = request.app.state.model_store['7872d546-eb78-4ced-879d-1368cfcb952a']  # Retrieve a model with the specified ID
+    request.app.state.model_store['9dc0bc2d-0adc-40f2-b47b-04abf07511f3'] = Model()  # Add a new model to the store
 ```
 
 #### Custom responses
@@ -115,7 +115,7 @@ from fastapi.responses import JSONResponse
 
 @router.get('/example')
 def get_example() -> JSONResponse:
-    response_content = {'an': 'example'}
+    response_content = {'id': 'ef0f085e-f3d9-48df-aee0-0f8eb7e7f144'}
     headers = {  # Headers should be a dictionary
         'Content-Language': 'en-US'
     }
