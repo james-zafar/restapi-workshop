@@ -38,6 +38,9 @@ restapi-workshop
 │       └───store
 │       │   │   model_store.py <-- An in memory model store with some additional useful functionality
 │ 
+└───store
+│   │   error_response.py <-- Contains an ABC for an error model
+│ 
 └───test
 │   │   test_*.py  <-- Unit tests for each endpoint that you will implement
 │

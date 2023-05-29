@@ -3,7 +3,7 @@ import uuid
 import random
 
 from app.api.resources import Model, ResultItem, Status
-from app.api.store import ModelStore
+from app.store import ModelStore
 
 
 class TestModelStore(unittest.TestCase):

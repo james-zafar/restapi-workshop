@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 
-from app.api.store import ModelStore
+from app.store import ModelStore
 
 app = FastAPI()  # Add your configuration here
 
