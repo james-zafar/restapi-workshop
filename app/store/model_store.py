@@ -2,11 +2,14 @@ import random
 import string
 from collections.abc import MutableMapping, Iterator
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TypeVar
 
 from app.api.resources.model import Model
 from app.api.resources.results import ResultItem
 from app.api.resources.status import Status
+
+KT = TypeVar('KT', bound=str)
+VT = TypeVar('VT', bound=tuple[Model, list[ResultItem] | None])
 
 
 def _make_results() -> list[ResultItem]:
@@ -21,17 +24,17 @@ def _make_results() -> list[ResultItem]:
 
 
 @dataclass
-class ModelStore(MutableMapping[str, tuple[Model, list[ResultItem] | None]]):
-    _data: dict[str, tuple[Model, list[ResultItem] | None]] = field(default_factory=dict, init=False)
+class ModelStore(MutableMapping[KT, VT]):
+    _data: dict[KT, VT] = field(default_factory=dict, init=False)
 
-    def set_status(self, model_id: str, status: Status) -> None:
-        if model_id not in self._data:
+    def set_status(self, model_id: KT, status: Status) -> None:
+        if model_id not in self:
             raise KeyError(f'No model with id {model_id!r} exists')
         if (model := self[model_id][0]).status in (Status.FAILED, Status.COMPLETED):
             raise ValueError('A model that has failed or completed cannot have its status changed')
         model.status = status
 
-    def get_results(self, model_id: str) -> list[ResultItem] | None:
+    def get_results(self, model_id: KT) -> list[ResultItem] | None:
         if self[model_id][0].status != Status.COMPLETED:
             return None
         if not (results := self[model_id][1]):
@@ -39,12 +42,12 @@ class ModelStore(MutableMapping[str, tuple[Model, list[ResultItem] | None]]):
             self[model_id] = (self[model_id][0], results)
         return results
 
-    def get(self, model_id: str) -> tuple[Model, list[ResultItem] | None] | None:
+    def get(self, model_id: KT) -> VT | None:
         if model_id in self:
             return self[model_id]
         return None
 
-    def __setitem__(self, model_id: str, value: Model | tuple) -> None:
+    def __setitem__(self, model_id: KT, value: VT) -> None:
         if isinstance(value, tuple):
             self._data[model_id] = value
             return
@@ -54,10 +57,10 @@ class ModelStore(MutableMapping[str, tuple[Model, list[ResultItem] | None]]):
             raise ValueError('The \'model_id\' must match the ID of the model.')
         self._data[model_id] = (value, None)
 
-    def __delitem__(self, model_id: str) -> None:
+    def __delitem__(self, model_id: KT) -> None:
         del self._data[model_id]
 
-    def __getitem__(self, model_id: str) -> tuple[Model, list[ResultItem] | None]:
+    def __getitem__(self, model_id: KT) -> VT:
         return self._data[model_id]
 
     def __len__(self) -> int:
@@ -66,5 +69,5 @@ class ModelStore(MutableMapping[str, tuple[Model, list[ResultItem] | None]]):
     def __contains__(self, item: Any) -> bool:
         return item in self._data
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[KT]:
         return iter(self._data)
