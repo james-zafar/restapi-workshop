@@ -17,8 +17,8 @@ def _make_results() -> list[ResultItem]:
     for idx in range(random.randint(0, 15)):
         results.append(ResultItem(cluster=idx,
                                   occurrences=random.randint(1, 1000),
-                                  members=[''.join(random.choices(string.ascii_uppercase, k=10)) for _ in
-                                           range(random.randint(1, 6))])
+                                  members=[''.join(random.choices(string.ascii_uppercase, k=10))
+                                           for _ in range(random.randint(1, 6))])
                        )
     return results
 

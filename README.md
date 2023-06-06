@@ -41,7 +41,8 @@ restapi-workshop
 └───test
 │   │   test_*.py  <-- Unit tests for each endpoint that you will implement
 │
-└───api
+│   requirements.txt <-- contains both prod and dev requirements
+│   workshop-v1.0.yaml <-- The API definition that you will implement in this workshop
    
 ```
 

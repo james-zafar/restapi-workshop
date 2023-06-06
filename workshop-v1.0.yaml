@@ -163,17 +163,14 @@ definitions:
         description: |
           The URL of the trace query service from which production traces are pulled.
         type: string
-        format: url
-        additionalProperties: true
       data_api_key:
         description: |
           The API key required to access the data in the 'data_source'.
         type: string
-        format: url
-        additionalProperties: true
     required:
       - data_source
       - data_api_key
+    additionalProperties: true
   Results:
     description: |
       The results from a completed model
